@@ -221,7 +221,7 @@ var dragTaskHandler = function(event) {
     var getId = event.dataTransfer.getData("text/plain");
 }
 
-// Function to restrict the available drop zones for a task
+// Function to restrict and highlight the available drop zones for a task
 var dropZoneDragHandler = function(event) {
     // Identify if the element under the task list as it is being dragged is a task list using the closest() method
     var taskListEl = event.target.closest(".task-list");
@@ -229,6 +229,8 @@ var dropZoneDragHandler = function(event) {
     if (taskListEl) {
         // Allow one element to be dropped on another
         event.preventDefault();
+        // Highlight the task list element with style changes
+        taskListEl.setAttribute("style", "background: rgba(68, 233, 255, 0.7); border-style: dashed;");
     }
 }
 
@@ -253,10 +255,22 @@ var dropTaskHandler = function(event) {
     else if (statusType === "tasks-completed") {
         statusSelectEl.selectedIndex = 2;
     }
+    // Remove the highlighted style from the task list element
+    dropZoneEl.removeAttribute("style");
     // Append the element (task) to the new parent element (task list)
     dropZoneEl.appendChild(draggableElement);
 }
 
+// A function to remove the highlighted style added by the dropZoneDragHandler when the task is no longer over a given drop zone
+var dragLeaveHandler = function(event) {
+    // Identify if the element under the task list as it is being dragged is a task list using the closest() method
+    var taskListEl = event.target.closest(".task-list");
+    // If the element is a task list
+    if (taskListEl) {
+        // Then remove the styling, so the highlight remains only on the active task list
+        taskListEl.removeAttribute("style");
+    }
+}
 
 // Listener for creating a new task
 formEl.addEventListener("submit", taskFormHandler);
@@ -275,3 +289,6 @@ pageContentEl.addEventListener("dragover", dropZoneDragHandler);
 
 // Listener for ending a drag and drop operation on a task
 pageContentEl.addEventListener("drop", dropTaskHandler);
+
+// Listener for the task element leaving a drop zone area
+pageContentEl.addEventListener("dragleave", dragLeaveHandler);
