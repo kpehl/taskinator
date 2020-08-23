@@ -27,14 +27,24 @@ var taskFormHandler = function() {
     // Reset the form, ready for the user to input another task
     formEl.reset();
 
-    // Package the data as an object
-    var taskDataObj = {
-        name: taskNameInput,
-        type: taskTypeInput
-    };
+    // If the form is being used to edit a task, a data task id will have been assigned to the form in editTask() below
+    var isEdit = formEl.hasAttribute("data-task-id");
 
-    // Send the data as an argument to createTaskEl
-    createTaskEl(taskDataObj);
+    // If an edit is being done, the task will be updated with a function
+    if (isEdit) {
+        var taskId = formEl.getAttribute("data-task-id");
+        completeEditTask(taskNameInput, taskTypeInput, taskId);
+    }
+    // If there is no data attribute, a new task is being created.
+    else {
+        // Package the data as an object
+        var taskDataObj = {
+            name: taskNameInput,
+            type: taskTypeInput
+        };
+        // Send the data as an argument to createTaskEl
+        createTaskEl(taskDataObj);
+    }
 }
 
 // Function to create a task item using user input and appending that task item to the list
@@ -142,7 +152,7 @@ var deleteTask = function(taskId) {
     taskSelected.remove();
 }
 
-// Function for editing a task
+// Function for editing a task in the form
 var editTask = function(taskId) {
     console.log("editing task #" + taskId);
 
@@ -162,6 +172,22 @@ var editTask = function(taskId) {
 
     // Set the task id on the form
     formEl.setAttribute("data-task-id", taskId);
+}
+
+// Function for saving the edited task information to the correct task id
+var completeEditTask = function(taskName, taskType, taskId) {
+    // Find the matching task list item
+    var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+    // Set the new values
+    taskSelected.querySelector("h3.task-name").textContent = taskName;
+    taskSelected.querySelector("span.task-type").textContent = taskType;
+
+    // Alert box for the user
+    alert("Task Updated!");
+
+    // Reset the form by removing the task id and changing the button text back to Add Task
+    formEl.removeAttribute("data-task-id");
+    document.querySelector("#save-task").textContent = "Add Task";
 }
 
 // Listener for modifying the tasks
