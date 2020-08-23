@@ -11,6 +11,9 @@ var pageContentEl = document.querySelector("#page-content");
 // Variable declared and initialized to provide a unique id for each task item
 var taskIdCounter = 0;
 
+// Array variable declared to allow for local storage and data persistence
+var tasks = [];
+
 // Function to get user input and call a function to create a task item
 var taskFormHandler = function() {
     // Prevent a page refresh, losing local data
@@ -42,7 +45,8 @@ var taskFormHandler = function() {
         // Package the data as an object
         var taskDataObj = {
             name: taskNameInput,
-            type: taskTypeInput
+            type: taskTypeInput,
+            status: "to do"
         };
         // Send the data as an argument to createTaskEl
         createTaskEl(taskDataObj);
@@ -76,6 +80,11 @@ var createTaskEl = function(taskDataObj) {
 
     // Add the entire list item to the list
     tasksToDoEl.appendChild(listItemEl);
+
+    // Add the unique task id to the taskDataObj for this task
+    taskDataObj.id = taskIdCounter;
+    //and add the taskDataObj to the tasks array - this will allow for data persistence
+    tasks.push(taskDataObj);
 
     // Increase the task counter for the next unique id
     taskIdCounter++;
@@ -151,6 +160,19 @@ var deleteTask = function(taskId) {
     var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
     // remove the element
     taskSelected.remove();
+
+    // Remove the task from the task array as well
+    // create a new array for the updated lists
+    var updatedTaskArr = [];
+    // loop through the current tasks
+    for (var i = 0; i < tasks.length; i++) {
+        // if the task id doesn't match the selected task, keep that item and push it into the new array. Otherwise, the item will not be kept.
+        if (tasks[i].id !== parseInt(taskId)) {
+            updatedTaskArr.push(tasks[i]);
+        }
+    }
+    // reassign the tasks array to be the updatedTaskArr
+    tasks = updatedTaskArr;
 }
 
 // Function for editing a task in the form
@@ -181,6 +203,17 @@ var completeEditTask = function(taskName, taskType, taskId) {
     taskSelected.querySelector("h3.task-name").textContent = taskName;
     taskSelected.querySelector("span.task-type").textContent = taskType;
 
+    // Update the values in the tasks array as well
+    // Loop through the array
+    for (var i = 0; i < tasks.length; i++) {
+        // If the task id matches the id of the task being updated
+        if (tasks[i].id === parseInt(taskId)) {
+            // then update the array values
+            tasks[i].name = taskName;
+            tasks[i].type = taskType;
+        }
+    }
+
     // Alert box for the user
     alert("Task Updated!");
 
@@ -207,6 +240,13 @@ var taskStatusChangeHandler = function() {
     }
     else if (statusValue === "completed") {
         tasksCompletedEl.appendChild(taskSelected);
+    }
+
+    // Update the task object in the tasks array as well
+    for (var i = 0; i < tasks.length; i++) {
+        if (tasks[i].id === parseInt(taskId)) {
+            tasks[i].status = statusValue;
+        }
     }
 }
 
@@ -259,6 +299,13 @@ var dropTaskHandler = function(event) {
     dropZoneEl.removeAttribute("style");
     // Append the element (task) to the new parent element (task list)
     dropZoneEl.appendChild(draggableElement);
+
+    // Update the task in the tasks array
+    for (var i = 0; i < tasks.length; i++) {
+        if (tasks[i].id === parseInt(id)) {
+            tasks[i].status = statusSelectEl.value.toLowerCase();
+        }
+    }
 }
 
 // A function to remove the highlighted style added by the dropZoneDragHandler when the task is no longer over a given drop zone
