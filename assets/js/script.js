@@ -114,10 +114,21 @@ formEl.addEventListener("submit", taskFormHandler);
 var taskButtonHandler = function(event) {
     console.log(event.target);
 
+    // Get the target element from the event, i.e. the button click
+    var targetEl = event.target;
+
+    // If the edit button is clicked
+    if (targetEl.matches(".edit-btn")) {
+        // get the element's task id
+        var taskId = targetEl.getAttribute("data-task-id");
+        // run the edit task function
+        editTask(taskId);
+    }
+
     // If the delete button is clicked
     if (event.target.matches(".delete-btn")) {
         // get the element's task id
-        var taskId = event.target.getAttribute("data-task-id");
+        var taskId = targetEl.getAttribute("data-task-id");
         // run the delele task function
         deleteTask(taskId);
     }
@@ -125,8 +136,32 @@ var taskButtonHandler = function(event) {
 
 // Function for deleting a task
 var deleteTask = function(taskId) {
+    // get the task list item element
     var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+    // remove the element
     taskSelected.remove();
+}
+
+// Function for editing a task
+var editTask = function(taskId) {
+    console.log("editing task #" + taskId);
+
+    // get task list item element
+    var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+
+    // get the task name and type from the list element
+    var taskName = taskSelected.querySelector("h3.task-name").textContent;
+    var taskType = taskSelected.querySelector("span.task-type").textContent;
+
+    // put the current values into the form
+    document.querySelector("input[name='task-name']").value = taskName;
+    document.querySelector("select[name='task-type']").value = taskType;
+
+    // change the button to Save Task instead of Add Task
+    document.querySelector("#save-task").textContent = "Save Task";
+
+    // Set the task id on the form
+    formEl.setAttribute("data-task-id", taskId);
 }
 
 // Listener for modifying the tasks
