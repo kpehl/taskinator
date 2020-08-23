@@ -86,6 +86,9 @@ var createTaskEl = function(taskDataObj) {
     //and add the taskDataObj to the tasks array - this will allow for data persistence
     tasks.push(taskDataObj);
 
+    // Save the data to local storage
+    saveTasks();
+
     // Increase the task counter for the next unique id
     taskIdCounter++;
 }
@@ -171,8 +174,11 @@ var deleteTask = function(taskId) {
             updatedTaskArr.push(tasks[i]);
         }
     }
-    // reassign the tasks array to be the updatedTaskArr
+    // Reassign the tasks array to be the updatedTaskArr
     tasks = updatedTaskArr;
+
+    // Save the data to local storage
+    saveTasks();
 }
 
 // Function for editing a task in the form
@@ -214,6 +220,9 @@ var completeEditTask = function(taskName, taskType, taskId) {
         }
     }
 
+    // Save the update to local storage
+    saveTasks();
+
     // Alert box for the user
     alert("Task Updated!");
 
@@ -248,6 +257,9 @@ var taskStatusChangeHandler = function() {
             tasks[i].status = statusValue;
         }
     }
+
+    // Save the data to local storage
+    saveTasks();
 }
 
 
@@ -306,6 +318,9 @@ var dropTaskHandler = function(event) {
             tasks[i].status = statusSelectEl.value.toLowerCase();
         }
     }
+
+    // Save the data to local storage
+    saveTasks();
 }
 
 // A function to remove the highlighted style added by the dropZoneDragHandler when the task is no longer over a given drop zone
@@ -318,6 +333,13 @@ var dragLeaveHandler = function(event) {
         taskListEl.removeAttribute("style");
     }
 }
+
+// A function to save the tasks to local storage. This is called whenever data is changed:
+    // createTaskEl, completeEditTask, taskStatusChangeHandler, deleteTask, and dropTaskHandler 
+var saveTasks = function() {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
 
 // Listener for creating a new task
 formEl.addEventListener("submit", taskFormHandler);
