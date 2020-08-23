@@ -1,12 +1,14 @@
 
-// Variables declared for the task-form and tasks-to-do classes
+// Variables declared for the task-form, tasks-to-do, tasks-in-progress, and tasks-completed classes
 var formEl = document.querySelector("#task-form");
 var tasksToDoEl = document.querySelector("#tasks-to-do");
+var tasksInProgressEl = document.querySelector("#tasks-in-progress");
+var tasksCompletedEl = document.querySelector("#tasks-completed");
 
 // Variable declared for the page-content id on the main section in the html page to enable modifying tasks
 var pageContentEl = document.querySelector("#page-content");
 
-// Variable declared to provide a unique id for each task item
+// Variable declared and initialized to provide a unique id for each task item
 var taskIdCounter = 0;
 
 // Function to get user input and call a function to create a task item
@@ -122,8 +124,6 @@ formEl.addEventListener("submit", taskFormHandler);
 
 // Function for modifying the tasks
 var taskButtonHandler = function(event) {
-    console.log(event.target);
-
     // Get the target element from the event, i.e. the button click
     var targetEl = event.target;
 
@@ -192,3 +192,26 @@ var completeEditTask = function(taskName, taskType, taskId) {
 
 // Listener for modifying the tasks
 pageContentEl.addEventListener("click", taskButtonHandler);
+
+// Function for changing a task's status
+var taskStatusChangeHandler = function() {
+    // Get the task item's id
+    var taskId = event.target.getAttribute("data-task-id");
+    // Get the currently selected option's value and convert to lower case
+    var statusValue = event.target.value.toLowerCase();
+    // Find the parent task item element base on the id
+    var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+    // Move the task as needed based on the selected status
+    if (statusValue === "to do") {
+        tasksToDoEl.appendChild(taskSelected);
+    }
+    else if (statusValue === "in progress") {
+        tasksInProgressEl.appendChild(taskSelected);
+    }
+    else if (statusValue === "completed") {
+        tasksCompletedEl.appendChild(taskSelected);
+    }
+}
+
+// Listener for changing a task's status
+pageContentEl.addEventListener("change", taskStatusChangeHandler);
