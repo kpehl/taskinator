@@ -78,8 +78,22 @@ var createTaskEl = function(taskDataObj) {
     var taskActionsEl = createTaskActions(taskIdCounter);
     listItemEl.appendChild(taskActionsEl);
 
-    // Add the entire list item to the list
-    tasksToDoEl.appendChild(listItemEl);
+    // Append the tasks to their correct lists, whether the task is newly created or loaded from local storage
+    if (taskDataObj.status === "to do") {
+        listItemEl.querySelector("select[name='status-change']").selectedIndex = 0;
+        // Add the entire list item to the To Do list
+        tasksToDoEl.appendChild(listItemEl);
+    }
+    else if (taskDataObj.status === "in progress") {
+        listItemEl.querySelector("select[name='status-change']").selectedIndex = 1;
+        // Add the entire list item to the In Progress list
+        tasksInProgressEl.appendChild(listItemEl);
+    }
+    else if (taskDataObj.status === "completed") {
+        listItemEl.querySelector("select[name='status-change']").selectedIndex = 2;
+        // Add the entire list item to the To Do list
+        tasksCompletedEl.appendChild(listItemEl);
+    } 
 
     // Add the unique task id to the taskDataObj for this task
     taskDataObj.id = taskIdCounter;
@@ -343,70 +357,21 @@ var saveTasks = function() {
 // A function to load tasks from local storage
 var loadTasks = function() {
     // Get task items from local storage
-    tasks = localStorage.getItem("tasks");
-    console.log(tasks);
-    // If the tasks item does not exist, it will be null, and the variable should be reset to an empty array
-    if (!tasks) {
-        tasks = [];
+    var savedTasks = localStorage.getItem("tasks");
+    console.log(savedTasks);
+    // If the tasks item does not exist, it will be null, and the function will exit without loading anything
+    if (!savedTasks) {
         return false;
     }
 
     // Convert tasks from the stringified format back into the array of objects
-    tasks = JSON.parse(tasks);
-    console.log(tasks);
+    savedTasks = JSON.parse(savedTasks);
 
-    // Iterate through the tasks array and create task elements on the page from the array
-    for (var i = 0; i < tasks.length; i++) {
-        console.log(tasks[i].name);
-        tasks[i].id = taskIdCounter;
-        console.log(tasks[i]);
-        //Copied from create
-        // Create the list item
-        var listItemEl = document.createElement("li");
-        listItemEl.className = "task-item";
-
-        // Add a unique task id as a custom attribute
-        listItemEl.setAttribute("data-task-id", tasks[i].id);
-
-        //Make the task item draggable
-        listItemEl.setAttribute("draggable", "true");
-        console.log(listItemEl);
-
-        // Create a div to hold task info and add to list item
-        var taskInfoEl = document.createElement("div");
-        // and give it a class name
-        taskInfoEl.className = "task-info";
-
-        // Add HTML content to the div
-        taskInfoEl.innerHTML = "<h3 class='task-name'>" + tasks[i].name + "</h3><span class='task-type'>" + tasks[i].type + "</span>";
-        listItemEl.appendChild(taskInfoEl);
-
-        // Add the task actions to the div
-        var taskActionsEl = createTaskActions(tasks[i].id);
-        listItemEl.appendChild(taskActionsEl);
-        console.log(listItemEl);
-
-        // Determine which list the item should be added to and add it
-        if (tasks[i].status === "to do") {
-            listItemEl.querySelector("select[name='status-change']").selectedIndex = 0;
-            // Add the entire list item to the To Do list
-            tasksToDoEl.appendChild(listItemEl);
-        }
-        else if (tasks[i].status === "in progress") {
-            listItemEl.querySelector("select[name='status-change']").selectedIndex = 1;
-            // Add the entire list item to the In Progress list
-            tasksInProgressEl.appendChild(listItemEl);
-        }
-        else if (tasks[i].status === "completed") {
-            listItemEl.querySelector("select[name='status-change']").selectedIndex = 2;
-            // Add the entire list item to the To Do list
-            tasksCompletedEl.appendChild(listItemEl);
-        }
-        
-    // Increase the task counter for the next unique id
-    taskIdCounter++;
-    console.log(listItemEl);        
+    // Use the createTaskEl function to re-create the stored tasks
+    for (var i = 0; i < savedTasks.length; i++) {
+        createTaskEl(savedTasks[i]);
     }
+   
 }
 
 
