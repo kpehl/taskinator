@@ -58,6 +58,9 @@ var createTaskEl = function(taskDataObj) {
     // Add a unique task id as a custom attribute
     listItemEl.setAttribute("data-task-id", taskIdCounter);
 
+    //Make the task item draggable
+    listItemEl.setAttribute("draggable", "true");
+
     // Create a div to hold task info and add to list item
     var taskInfoEl = document.createElement("div");
     // and give it a class name
@@ -119,8 +122,6 @@ var createTaskActions = function(taskId) {
     return actionContainerEl;
 }
 
-// Listener for creating a new task
-formEl.addEventListener("submit", taskFormHandler);
 
 // Function for modifying the tasks
 var taskButtonHandler = function(event) {
@@ -154,8 +155,6 @@ var deleteTask = function(taskId) {
 
 // Function for editing a task in the form
 var editTask = function(taskId) {
-    console.log("editing task #" + taskId);
-
     // get task list item element
     var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
 
@@ -190,8 +189,6 @@ var completeEditTask = function(taskName, taskType, taskId) {
     document.querySelector("#save-task").textContent = "Add Task";
 }
 
-// Listener for modifying the tasks
-pageContentEl.addEventListener("click", taskButtonHandler);
 
 // Function for changing a task's status
 var taskStatusChangeHandler = function() {
@@ -213,5 +210,68 @@ var taskStatusChangeHandler = function() {
     }
 }
 
+
+// Function to handle the drag operation
+var dragTaskHandler = function(event) {
+    // Get the task id from the item
+    var taskId = event.target.getAttribute("data-task-id");
+    // Store the task id in the dataTransfer property of the dragstart event
+    event.dataTransfer.setData("text/plain", taskId);
+    // Verify that the id was stored and is retrievable
+    var getId = event.dataTransfer.getData("text/plain");
+}
+
+// Function to restrict the available drop zones for a task
+var dropZoneDragHandler = function(event) {
+    // Identify if the element under the task list as it is being dragged is a task list using the closest() method
+    var taskListEl = event.target.closest(".task-list");
+    // If the element is a task list, i.e. the desired drop zone
+    if (taskListEl) {
+        // Allow one element to be dropped on another
+        event.preventDefault();
+    }
+}
+
+// Function to handle the drop operation
+var dropTaskHandler = function(event) {
+    // Get the id stored in the dataTransfer property when the drag event started
+    var id = event.dataTransfer.getData("text/plain");
+    // Define the element based on that id
+    var draggableElement = document.querySelector("[data-task-id='" + id + "']");
+    // Get the desired task status drop zone based on the closest element to where the task was dropped
+    var dropZoneEl = event.target.closest(".task-list");
+    var statusType = dropZoneEl.id;
+    // Initialize a statusSelect variable 
+    var statusSelectEl = draggableElement.querySelector("select[name='status-change']");
+    // Use the statusType and statusSelect variables to update the task's selected, i.e. displayed, status in the drop down menu 
+    if (statusType === "tasks-to-do") {
+        statusSelectEl.selectedIndex = 0;
+    }
+    else if (statusType === "tasks-in-progress") {
+        statusSelectEl.selectedIndex = 1;
+    }
+    else if (statusType === "tasks-completed") {
+        statusSelectEl.selectedIndex = 2;
+    }
+    // Append the element (task) to the new parent element (task list)
+    dropZoneEl.appendChild(draggableElement);
+}
+
+
+// Listener for creating a new task
+formEl.addEventListener("submit", taskFormHandler);
+
+// Listener for modifying the task's name or type or deleting the task
+pageContentEl.addEventListener("click", taskButtonHandler);
+
 // Listener for changing a task's status
 pageContentEl.addEventListener("change", taskStatusChangeHandler);
+
+// Listener for starting a drag and drop operation on a task
+pageContentEl.addEventListener("dragstart", dragTaskHandler);
+
+// Listener for the drop zone for a drag and drop operation
+pageContentEl.addEventListener("dragover", dropZoneDragHandler);
+
+// Listener for ending a drag and drop operation on a task
+pageContentEl.addEventListener("drop", dropTaskHandler);
